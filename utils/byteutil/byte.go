@@ -3,6 +3,7 @@ package byteutil
 import (
 	"fmt"
 	"net"
+	"strings"
 )
 
 func SplitUint8To2Bytes(char uint8) [2]byte {
@@ -40,7 +41,8 @@ func GenSpecBytes(length uint16) []byte {
 
 func ParseBssid(bssidBytes []byte, offset, count int) string {
 	bytes := bssidBytes[offset : offset+count]
-	return fmt.Sprintf("%02x", bytes)
+	bssid := fmt.Sprintf("% 02x", bytes)
+	return strings.ReplaceAll(bssid, " ", ":")
 }
 
 func ParseInetAddr(inetAddrBytes []byte, offset, count int) net.IP {

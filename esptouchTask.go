@@ -11,13 +11,18 @@ import (
 	"sync"
 )
 
+type EsptouchResult struct {
+	Bssid       string
+	IP 			net.IP
+}
+
 type EsptouchTask struct {
 	parameter             	*task.EsptouchParameter
 	apSsid                	[]byte
 	apPassword            	[]byte
 	apBssid               	[]byte
 	udpClient             	*net.UDPConn
-	mEsptouchResultList   	[]IEsptouchResult
+	mEsptouchResultList   	[]*EsptouchResult
 	mBssidTaskSucCountMap 	map[string]int
 	mIsInterrupt          	bool
 	mIsExecuted           	bool
@@ -50,7 +55,7 @@ func NewEsptouchTask(apSsid, apPassword, apBssid []byte) (*EsptouchTask, error) 
 		apPassword:            apPassword,
 		apBssid:               apBssid,
 		udpClient:             conn,
-		mEsptouchResultList:   make([]IEsptouchResult, 0),
+		mEsptouchResultList:   make([]*EsptouchResult, 0),
 		mBssidTaskSucCountMap: make(map[string]int),
 	}, nil
 }
@@ -66,7 +71,7 @@ func (p *EsptouchTask) checkTaskValid() {
 	}
 	p.mIsExecuted = true
 }
-func (p *EsptouchTask) putEsptouchResult(isSuc bool, bssid string, ip net.IP) {
+func (p *EsptouchTask) putEsptouchResult(bssid string, ip net.IP) {
 	var count int
 	if c, ok := p.mBssidTaskSucCountMap[bssid]; ok {
 		count = c
@@ -78,14 +83,13 @@ func (p *EsptouchTask) putEsptouchResult(isSuc bool, bssid string, ip net.IP) {
 	}
 	var isExist = false
 	for _, esptouchResultInList := range p.mEsptouchResultList {
-		if esptouchResultInList.GetBssid() == bssid {
+		if esptouchResultInList.Bssid == bssid {
 			isExist = true
 			break
 		}
 	}
 	if !isExist {
-		esptouchResult := NewEsptouchResult(isSuc, bssid, ip)
-		p.mEsptouchResultList = append(p.mEsptouchResultList, esptouchResult)
+		p.mEsptouchResultList = append(p.mEsptouchResultList, &EsptouchResult{Bssid:bssid, IP:ip})
 	}
 }
 
@@ -113,7 +117,7 @@ func (p *EsptouchTask) listenAsync(expectDataLen int) {
 		if n > 0 && receiveBytes[0] == expectOneByte {
 			var bssid = byteutil.ParseBssid(receiveBytes, p.parameter.GetEsptouchResultOneLen(), p.parameter.GetEsptouchResultMacLen())
 			var inetAddress = byteutil.ParseInetAddr(receiveBytes, p.parameter.GetEsptouchResultOneLen()+p.parameter.GetEsptouchResultMacLen(), p.parameter.GetEsptouchResultIpLen())
-			p.putEsptouchResult(true, bssid, inetAddress)
+			p.putEsptouchResult(bssid, inetAddress)
 		}
 	}
 	p.mIsSuc = len(p.mEsptouchResultList) >= p.parameter.GetExpectTaskResultCount()
@@ -198,7 +202,7 @@ func (p *EsptouchTask) localIP() net.IP {
 	return nil
 }
 
-func (p *EsptouchTask) ExecuteForResultsCtx(ctx context.Context, expectTaskResultCount int) []IEsptouchResult {
+func (p *EsptouchTask) ExecuteForResultsCtx(ctx context.Context, expectTaskResultCount int) []*EsptouchResult {
 	p.checkTaskValid()
 	
 	go func(){
@@ -230,7 +234,7 @@ func (p *EsptouchTask) ExecuteForResultsCtx(ctx context.Context, expectTaskResul
 	return p.mEsptouchResultList
 }
 
-func (p *EsptouchTask) ExecuteForResults(expectTaskResultCount int) []IEsptouchResult {
+func (p *EsptouchTask) ExecuteForResults(expectTaskResultCount int) []*EsptouchResult {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	return p.ExecuteForResultsCtx(ctx, expectTaskResultCount)

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"esptouch/protocol"
+	"github.com/456vv/esptouch-go/protocol"
 	"fmt"
 	"log"
 	"net"

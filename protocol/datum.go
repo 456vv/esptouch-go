@@ -1,8 +1,8 @@
 package protocol
 
 import (
-	"esptouch/utils"
-	"esptouch/utils/byteutil"
+	"github.com/456vv/esptouch-go/utils"
+	"github.com/456vv/esptouch-go/utils/byteutil"
 )
 
 import (

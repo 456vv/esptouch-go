@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/hex"
-	"esptouch"
+	"github.com/456vv/esptouch-go"
 	"flag"
 	"fmt"
 	"log"

@@ -2,9 +2,9 @@ package esptouch
 
 import (
 	"errors"
-	"esptouch/protocol"
-	"esptouch/task"
-	"esptouch/utils/byteutil"
+	"github.com/456vv/esptouch-go/protocol"
+	"github.com/456vv/esptouch-go/task"
+	"github.com/456vv/esptouch-go/utils/byteutil"
 	"net"
 	"time"
 	"context"

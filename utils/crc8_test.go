@@ -8,3 +8,8 @@ func TestCRC8_GetValue(t *testing.T) {
 	crc.Update([]byte{0x1a, 0x1a}, 0, 2)
 	t.Logf("%.2x", crc.GetValue())
 }
+
+func TestCRC8(t *testing.T) {
+	crc := NewCRC8()
+	t.Log(crc)
+}

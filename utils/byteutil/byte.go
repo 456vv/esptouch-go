@@ -6,6 +6,7 @@ import (
 )
 
 func SplitUint8To2Bytes(char uint8) [2]byte {
+	//0x12=>{0001, 0010}
 	bt := [2]byte{0, 0}
 	bt[0] = (char & 0xff) >> 4 //High
 	bt[1] = char & 0x0f
@@ -13,10 +14,14 @@ func SplitUint8To2Bytes(char uint8) [2]byte {
 }
 
 func Combine2BytesToOne(high, low byte) uint8 {
+	//height==01,low==10
+	//high<<4==010000,low==0010
+	//00010000|00000010==00010010
 	return high<<4 | low
 }
 
 func CovertByte2Uint8(b byte) uint16 {
+	//0x1&0xff==0x01
 	return uint16(b & 0xff)
 }
 func Combine2bytesToU16(h, l byte) uint16 {
@@ -35,25 +40,12 @@ func GenSpecBytes(length uint16) []byte {
 
 func ParseBssid(bssidBytes []byte, offset, count int) string {
 	bytes := bssidBytes[offset : offset+count]
-	var sb string
-	for _, v := range bytes {
-		k := 0xff & v
-		if k < 16 {
-			sb += fmt.Sprintf("0%x", k)
-		} else {
-			sb += fmt.Sprintf("%x", k)
-		}
-	}
-	return sb
+	return fmt.Sprintf("%02x", bytes)
 }
 
 func ParseInetAddr(inetAddrBytes []byte, offset, count int) net.IP {
-	var sb string
-	for i := 0; i < count; i++ {
-		sb += fmt.Sprintf("%d", inetAddrBytes[offset+i]&0xff)
-		if i != count-1 {
-			sb += "."
-		}
-	}
-	return net.ParseIP(sb)
+	bytes := inetAddrBytes[offset : offset+count]
+	var ip = make([]byte, count)
+	copy(ip, bytes)
+	return ip
 }

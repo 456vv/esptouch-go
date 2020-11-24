@@ -1,8 +1,8 @@
 package protocol
 
 import (
-	"github.com/haowanxing/esptouch-go/utils"
-	"github.com/haowanxing/esptouch-go/utils/byteutil"
+	"esptouch/utils"
+	"esptouch/utils/byteutil"
 )
 
 const (
@@ -35,11 +35,11 @@ func NewDataCode(u8 uint16, index int) *DataCode {
 
 func (d *DataCode) GetBytes() []byte {
 	dataBytes := make([]byte, DATA_CODE_LEN)
-	dataBytes[0] = 0x00
-	dataBytes[1] = byteutil.Combine2BytesToOne(d.mCrcHigh, d.mDataHigh)
-	dataBytes[2] = 0x01
-	dataBytes[3] = d.mSeqHeader
-	dataBytes[4] = 0x00
-	dataBytes[5] = byteutil.Combine2BytesToOne(d.mCrcLow, d.mDataLow)
+	dataBytes[0] = 0x00//控制位(1bit)
+	dataBytes[1] = byteutil.Combine2BytesToOne(d.mCrcHigh, d.mDataHigh)//crc的高4bit	data的高4bit
+	dataBytes[2] = 0x01//控制位(1bit)
+	dataBytes[3] = d.mSeqHeader//传输包的序号（占8bit）
+	dataBytes[4] = 0x00//控制位(1bit)
+	dataBytes[5] = byteutil.Combine2BytesToOne(d.mCrcLow, d.mDataLow)//crc的低4bit	data的低4bit
 	return dataBytes
 }

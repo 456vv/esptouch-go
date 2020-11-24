@@ -1,8 +1,8 @@
 package utils
 
 const (
-	CRC_POLYNOM = 0x8c
-	CRC_INITIAL = 0x00
+	CRC_POLYNOM = 0x8c //10001100
+	CRC_INITIAL = 0x00 //00000000
 )
 
 type CRC8 struct {
@@ -31,11 +31,10 @@ func NewCRC8() *CRC8 {
 	}
 }
 
-func (c *CRC8) Update(buffer []byte, offset, len int) {
-	for i := 0; i < len; i++ {
+func (c *CRC8) Update(buffer []byte, offset, l int) {
+	for i := 0; i < l; i++ {
 		data := int16(buffer[offset+i]) ^ c.value
 		c.value = c.crcTable[data&0xff] ^ (c.value << 8)
-		//c.value = c.crcTable[data & 0xff]
 	}
 }
 

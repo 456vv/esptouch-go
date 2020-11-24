@@ -1,8 +1,8 @@
 package protocol
 
 import (
-	"github.com/haowanxing/esptouch-go/utils"
-	"github.com/haowanxing/esptouch-go/utils/byteutil"
+	"esptouch/utils"
+	"esptouch/utils/byteutil"
 )
 
 import (
@@ -21,16 +21,16 @@ type DatumCode struct {
 func NewDatumCode(apSsid, apBssid, apPassword, ipAddress []byte) *DatumCode {
 	totalXor := uint16(0)
 
-	apPwdLen := uint16(len(apPassword))
 	crc := utils.NewCRC8()
+	apPwdLen := uint16(len(apPassword))
 	crc.Update(apSsid, 0, len(apSsid))
 	apSsidCrc := uint16(crc.GetValue())
 
 	crc.Reset()
+	apSsidLen := uint16(len(apSsid))
 	crc.Update(apBssid, 0, len(apBssid))
 	apBssidCrc := uint16(crc.GetValue())
 
-	apSsidLen := uint16(len(apSsid))
 
 	ipLen := len(ipAddress)
 

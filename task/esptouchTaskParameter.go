@@ -8,7 +8,7 @@ type EsptouchParameter struct {
 	mIntervalDataCodeMillisecond  int64
 	mTimeoutGuideCodeMillisecond  int64
 	mTimeoutDataCodeMillisecond   int64
-	mTotalRepeatTime              int
+	mTotalRepeatItem              int
 	mEsptouchResultOneLen         int
 	mEsptouchResultMacLen         int
 	mEsptouchResultIpLen          int
@@ -29,7 +29,7 @@ func NewEsptouchParameter() *EsptouchParameter {
 		mIntervalDataCodeMillisecond:  8,
 		mTimeoutGuideCodeMillisecond:  2000,
 		mTimeoutDataCodeMillisecond:   4000,
-		mTotalRepeatTime:              1,
+		mTotalRepeatItem:              1,
 		mEsptouchResultOneLen:         1,
 		mEsptouchResultMacLen:         6,
 		mEsptouchResultIpLen:          4,
@@ -63,8 +63,8 @@ func (p *EsptouchParameter) GetTimeoutTotalCodeMillisecond() int64 {
 	return p.mTimeoutGuideCodeMillisecond + p.mTimeoutDataCodeMillisecond
 }
 
-func (p *EsptouchParameter) GetTotalRepeatTime() int {
-	return p.mTotalRepeatTime
+func (p *EsptouchParameter) GetTotalRepeatItem() int {
+	return p.mTotalRepeatItem
 }
 
 func (p *EsptouchParameter) GetEsptouchResultOneLen() int {

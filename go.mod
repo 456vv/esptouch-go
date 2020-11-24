@@ -1,3 +1,3 @@
-module github.com/haowanxing/esptouch-go
+module esptouch
 
-go 1.13
+go 1.15

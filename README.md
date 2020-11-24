@@ -17,7 +17,7 @@ Finally. the sdk package born up. （ Code is migrated from https://github.com/E
 package main
 
 import (
-	"https://github.com/456vv/esptouch-go"
+	"github.com/456vv/esptouch-go"
 	"log"
 )
 

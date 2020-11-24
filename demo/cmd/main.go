@@ -36,11 +36,10 @@ func main() {
 		return
 	}
 	
-	bssidBytes := make([]byte, 0)
-	bssidList := strings.Split(apBssid, ":")
-	for _, v := range bssidList {
-		bt, _ := hex.DecodeString(v)
-		bssidBytes = append(bssidBytes, bt...)
+	apBssid = strings.ReplaceAll(apBssid,":", "")
+	bssidBytes, err := hex.DecodeString(apBssid)
+	if err != nil {
+		panic(err)
 	}
 	task, err := esptouch.NewEsptouchTask([]byte(apSsid), []byte(apPassword), bssidBytes)
 	if err != nil {

@@ -12,7 +12,7 @@ import (
 )
 
 type EsptouchResult struct {
-	Bssid       string
+	BSSID       string
 	IP 			net.IP
 }
 
@@ -83,13 +83,13 @@ func (p *EsptouchTask) putEsptouchResult(bssid string, ip net.IP) {
 	}
 	var isExist = false
 	for _, esptouchResultInList := range p.mEsptouchResultList {
-		if esptouchResultInList.Bssid == bssid {
+		if esptouchResultInList.BSSID == bssid {
 			isExist = true
 			break
 		}
 	}
 	if !isExist {
-		p.mEsptouchResultList = append(p.mEsptouchResultList, &EsptouchResult{Bssid:bssid, IP:ip})
+		p.mEsptouchResultList = append(p.mEsptouchResultList, &EsptouchResult{BSSID:bssid, IP:ip})
 	}
 }
 

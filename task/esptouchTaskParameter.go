@@ -114,13 +114,6 @@ func (p *EsptouchParameter) SetExpectTaskResultCount(mExpectTaskResultCount int)
 	p.mExpectTaskResultCount = mExpectTaskResultCount
 }
 
-func (p *EsptouchParameter) GetBroadcast() bool {
-	return p.mBroadcast
-}
-func (p *EsptouchParameter) SetBroadcast(mBroadcast bool) {
-	p.mBroadcast = mBroadcast
-}
-
 func (p *EsptouchParameter) nextDatagramCount() int {
 	p.datagramCount++
 	return 1 + (p.datagramCount-1)%100

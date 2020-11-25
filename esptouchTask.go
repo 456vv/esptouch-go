@@ -240,6 +240,6 @@ func (p *EsptouchTask) ExecuteForResults(expectTaskResultCount int) []*EsptouchR
 	return p.ExecuteForResultsCtx(ctx, expectTaskResultCount)
 }
 
-func (p *EsptouchTask) SetPackageBroadcast(broadcast bool) {
-	p.parameter.SetBroadcast(broadcast)
+func (p *EsptouchTask) SetBroadcast(broadcast bool) {
+	p.parameter.mBroadcast=broadcast
 }

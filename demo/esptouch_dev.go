@@ -16,12 +16,12 @@ var (
 func main1() {
 	broadcast = false
 	//broadcast = true
-	mIntervalGuideCodeMillisecond := int64(8)
-	mIntervalDataCodeMillisecond := int64(8)
-	mTimeoutGuideCodeMillisecond := int64(2000)
-	mTimeoutDataCodeMillisecond := int64(4000)
-	mTimeoutTotalCodeMillisecond := mTimeoutGuideCodeMillisecond + mTimeoutDataCodeMillisecond
-	mWaitUdpSendingMillisecond := int64(45000)
+	IntervalGuideCodeMillisecond := int64(8)
+	IntervalDataCodeMillisecond := int64(8)
+	TimeoutGuideCodeMillisecond := int64(2000)
+	TimeoutDataCodeMillisecond := int64(4000)
+	mTimeoutTotalCodeMillisecond := TimeoutGuideCodeMillisecond + TimeoutDataCodeMillisecond
+	WaitUdpSendingMillisecond := int64(45000)
 	mInterrupt := false
 	//eg := esptouchgenerator.NewEsptouchGenerator([]byte("Administrators"), []byte{0xf0, 0xb4, 0x29, 0x5c, 0xea, 0x0b}, []byte("123qweasdzxc"), []byte{192, 168, 123, 196})
 	//eg := esptouchgenerator.NewEsptouchGenerator([]byte("WiWide"), []byte{0x00,0x1f,0x7a,0x7b,0xed,0x70}, []byte("wiwide123456"), []byte{10, 11, 98, 45})
@@ -64,24 +64,24 @@ func main1() {
 			if !mInterrupt {
 				if currentTime-lastTime >= mTimeoutTotalCodeMillisecond {
 					for {
-						if !mInterrupt && time.Now().UnixNano()/1e6-currentTime < mTimeoutGuideCodeMillisecond {
-							sendData(conn, gc, 0, int64(len(gc)), mIntervalGuideCodeMillisecond)
+						if !mInterrupt && time.Now().UnixNano()/1e6-currentTime < TimeoutGuideCodeMillisecond {
+							sendData(conn, gc, 0, int64(len(gc)), IntervalGuideCodeMillisecond)
 						} else {
 							index = 0
 							break
 						}
-						if time.Now().UnixNano()/1e6-startTime > mWaitUdpSendingMillisecond {
+						if time.Now().UnixNano()/1e6-startTime > WaitUdpSendingMillisecond {
 							fmt.Println("Wait udp end.")
 							break
 						}
 					}
 					lastTime = currentTime
 				} else {
-					sendData(conn, dc, int64(index), 3, mIntervalDataCodeMillisecond)
+					sendData(conn, dc, int64(index), 3, IntervalDataCodeMillisecond)
 					index = (index + 3) % len(dc)
 				}
 				currentTime = time.Now().UnixNano() / 1e6
-				if currentTime-startTime > mWaitUdpSendingMillisecond {
+				if currentTime-startTime > WaitUdpSendingMillisecond {
 					log.Println("UDP Send Timeout.")
 					goto end
 				}

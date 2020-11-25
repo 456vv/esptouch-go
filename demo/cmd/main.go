@@ -46,7 +46,7 @@ func main() {
 		panic(err)
 	}
 	defer task.Close()
-	task.SetPackageBroadcast(mode)
+	task.SetBroadcast(mode)
 	log.Println("SmartConfig run.")
 	
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second * time.Duration(tout))

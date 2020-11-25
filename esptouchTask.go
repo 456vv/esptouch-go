@@ -43,7 +43,7 @@ func NewEsptouchTask(apSsid, apPassword, apBssid []byte) (*EsptouchTask, error) 
 	mParameter := task.NewEsptouchParameter()
 	conn, err := net.ListenUDP("udp", &net.UDPAddr{
 		IP:   nil,
-		Port: mParameter.GetPortListening(),
+		Port: mParameter.PortListening,
 	})
 	
 	if err != nil {
@@ -78,7 +78,7 @@ func (p *EsptouchTask) putEsptouchResult(bssid string, ip net.IP) {
 	}
 	count++
 	p.mBssidTaskSucCountMap[bssid] = count
-	if !(count >= p.parameter.GetThresholdSucBroadcastCount()) {
+	if !(count >= p.parameter.ThresholdSucBroadcastCount) {
 		return
 	}
 	var isExist = false
@@ -99,12 +99,11 @@ func (p *EsptouchTask) listenAsync(expectDataLen int) {
 	for {
 		//1，中断
 		//2，结果满足
-		if p.mIsInterrupt || len(p.mEsptouchResultList) >= p.parameter.GetExpectTaskResultCount() {
+		if p.mIsInterrupt || len(p.mEsptouchResultList) >= p.parameter.ExpectTaskResultCount {
 			break
 		}
-		
 		//超时是发送时间+接收时间，因为是同时进行的
-		tout := startTime.Add(time.Duration(p.parameter.GetWaitUdpTotalMillisecond())*time.Millisecond)
+		tout := startTime.Add(time.Duration(p.parameter.WaitUdpReceivingMillisecond + p.parameter.WaitUdpSendingMillisecond)*time.Millisecond)
 		p.udpClient.SetReadDeadline(tout)
 		var receiveBytes = make([]byte, expectDataLen)
 		n, _, err := p.udpClient.ReadFromUDP(receiveBytes)
@@ -113,14 +112,14 @@ func (p *EsptouchTask) listenAsync(expectDataLen int) {
 			//2，超时
 			break
 		}
-
+		
 		if n > 0 && receiveBytes[0] == expectOneByte {
-			var bssid = byteutil.ParseBssid(receiveBytes, p.parameter.GetEsptouchResultOneLen(), p.parameter.GetEsptouchResultMacLen())
-			var inetAddress = byteutil.ParseInetAddr(receiveBytes, p.parameter.GetEsptouchResultOneLen()+p.parameter.GetEsptouchResultMacLen(), p.parameter.GetEsptouchResultIpLen())
+			var bssid = byteutil.ParseBssid(receiveBytes, p.parameter.EsptouchResultOneLen, p.parameter.EsptouchResultMacLen)
+			var inetAddress = byteutil.ParseInetAddr(receiveBytes, p.parameter.EsptouchResultOneLen+p.parameter.EsptouchResultMacLen, p.parameter.EsptouchResultIpLen)
 			p.putEsptouchResult(bssid, inetAddress)
 		}
 	}
-	p.mIsSuc = len(p.mEsptouchResultList) >= p.parameter.GetExpectTaskResultCount()
+	p.mIsSuc = len(p.mEsptouchResultList) >= p.parameter.ExpectTaskResultCount
 	p.interrupt()
 	p.wg.Done()
 }
@@ -136,22 +135,22 @@ func (p *EsptouchTask) execute(generator *protocol.EsptouchGenerator) bool {
 			break
 		}
 		//超出所有总超时时间
-		if (currentTime - startTime) > p.parameter.GetWaitUdpSendingMillisecond() {
+		if (currentTime - startTime) > p.parameter.WaitUdpSendingMillisecond {
 			break
 		}
 		
 		//一直循环的发guidCode，直到2秒后超时
-		for !p.mIsInterrupt && ((time.Now().UnixNano()/1e6)-currentTime) < p.parameter.GetTimeoutGuideCodeMillisecond() {
+		for !p.mIsInterrupt && ((time.Now().UnixNano()/1e6)-currentTime) < p.parameter.TimeoutGuideCodeMillisecond {
 			//每隔8毫秒发送一组guideCode
-			p.sendData(gc, 0, int64(len(gc)), p.parameter.GetIntervalGuideCodeMillisecond())
+			p.sendData(gc, 0, int64(len(gc)), p.parameter.IntervalGuideCodeMillisecond)
 		}
 		
 		index := 0
 		//一直循环的发dataCode，直到4秒后超时
-		for !p.mIsInterrupt && ((time.Now().UnixNano()/1e6)-currentTime) < p.parameter.GetTimeoutDataCodeMillisecond() {
+		for !p.mIsInterrupt && ((time.Now().UnixNano()/1e6)-currentTime) < p.parameter.TimeoutDataCodeMillisecond {
 			//每隔8毫秒发送一组dataCode
 			//每次发3组	
-			p.sendData(dc, int64(index), 3, p.parameter.GetIntervalDataCodeMillisecond())
+			p.sendData(dc, int64(index), 3, p.parameter.IntervalDataCodeMillisecond)
 			//1,下一次从4开始
 			index = (index + 3) % len(dc)
 		}
@@ -168,7 +167,7 @@ func (p *EsptouchTask) sendData(data [][]byte, offset, count int64, interval int
 		p.udpClient.SetWriteDeadline(time.Time{})
 		_, _ = p.udpClient.WriteToUDP(data[i], &net.UDPAddr{
 			IP:   net.ParseIP(p.parameter.GetTargetHostname()),
-			Port: p.parameter.GetTargetPort(),
+			Port: p.parameter.TargetPort,
 		})
 		time.Sleep(time.Millisecond * time.Duration(interval))
 	}
@@ -217,13 +216,13 @@ func (p *EsptouchTask) ExecuteForResultsCtx(ctx context.Context, expectTaskResul
 	p.wg.Add(1)
 	
 	//设置等待接收配对设备数量
-	p.parameter.SetExpectTaskResultCount(expectTaskResultCount)
+	p.parameter.ExpectTaskResultCount=expectTaskResultCount
 	//同步监听接收设备返回的bssid+ip
-	go p.listenAsync(p.parameter.GetEsptouchResultTotalLen())
+	go p.listenAsync(p.parameter.EsptouchResultTotalLen)
 
 	//生成长编码
 	generator := protocol.NewEsptouchGenerator(p.apSsid, p.apBssid, p.apPassword, p.localIP())
-	for i := 0; i < p.parameter.GetTotalRepeatItem(); i++ {
+	for i := 0; i < p.parameter.TotalRepeatItem; i++ {
 		//发送配对数据
 		if p.execute(generator) {
 			return p.mEsptouchResultList
@@ -241,5 +240,5 @@ func (p *EsptouchTask) ExecuteForResults(expectTaskResultCount int) []*EsptouchR
 }
 
 func (p *EsptouchTask) SetBroadcast(broadcast bool) {
-	p.parameter.mBroadcast=broadcast
+	p.parameter.Broadcast=broadcast
 }

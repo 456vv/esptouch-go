@@ -10,7 +10,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	task.SetPackageBroadcast(false)
+	task.SetBroadcast(false)
 	log.Println("SmartConfig run.")
 	rList := task.ExecuteForResults(2)
 	log.Println("Finished", rList)

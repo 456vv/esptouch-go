@@ -4,114 +4,44 @@ import "fmt"
 
 type EsptouchParameter struct {
 	datagramCount                 int
-	mIntervalGuideCodeMillisecond int64
-	mIntervalDataCodeMillisecond  int64
-	mTimeoutGuideCodeMillisecond  int64
-	mTimeoutDataCodeMillisecond   int64
-	mTotalRepeatItem              int
-	mEsptouchResultOneLen         int
-	mEsptouchResultMacLen         int
-	mEsptouchResultIpLen          int
-	mEsptouchResultTotalLen       int
-	mPortListening                int
-	mTargetPort                   int
-	mWaitUdpReceivingMillisecond  int64
-	mWaitUdpSendingMillisecond    int64
-	mThresholdSucBroadcastCount   int
-	mExpectTaskResultCount        int
-	mBroadcast                    bool
+	IntervalGuideCodeMillisecond int64
+	IntervalDataCodeMillisecond  int64
+	TimeoutGuideCodeMillisecond  int64
+	TimeoutDataCodeMillisecond   int64
+	TotalRepeatItem              int
+	EsptouchResultOneLen         int
+	EsptouchResultMacLen         int
+	EsptouchResultIpLen          int
+	EsptouchResultTotalLen       int
+	PortListening                int
+	TargetPort                   int
+	WaitUdpReceivingMillisecond  int64
+	WaitUdpSendingMillisecond    int64
+	ThresholdSucBroadcastCount   int
+	ExpectTaskResultCount        int
+	Broadcast                    bool
 }
 
 func NewEsptouchParameter() *EsptouchParameter {
 	return &EsptouchParameter{
-		datagramCount:                 0,
-		mIntervalGuideCodeMillisecond: 8,
-		mIntervalDataCodeMillisecond:  8,
-		mTimeoutGuideCodeMillisecond:  2000,
-		mTimeoutDataCodeMillisecond:   4000,
-		mTotalRepeatItem:              1,
-		mEsptouchResultOneLen:         1,
-		mEsptouchResultMacLen:         6,
-		mEsptouchResultIpLen:          4,
-		mEsptouchResultTotalLen:       1 + 6 + 4,
-		mPortListening:                18266,
-		mTargetPort:                   7001,
-		mWaitUdpReceivingMillisecond:  15000,
-		mWaitUdpSendingMillisecond:    45000,
-		mThresholdSucBroadcastCount:   1,
-		mExpectTaskResultCount:        1,
-		mBroadcast:                    true,
+		datagramCount:                 	0,
+		IntervalGuideCodeMillisecond: 	8,
+		IntervalDataCodeMillisecond:  	8,
+		TimeoutGuideCodeMillisecond:  	2000,
+		TimeoutDataCodeMillisecond:   	4000,
+		TotalRepeatItem:              	1,
+		EsptouchResultOneLen:         	1,
+		EsptouchResultMacLen:         	6,
+		EsptouchResultIpLen:          	4,
+		EsptouchResultTotalLen:       	1 + 6 + 4,
+		PortListening:                	18266,
+		TargetPort:                   	7001,
+		WaitUdpReceivingMillisecond:  	15000,
+		WaitUdpSendingMillisecond:    	45000,
+		ThresholdSucBroadcastCount:   	1,
+		ExpectTaskResultCount:        	1,
+		Broadcast:                    	true,
 	}
-}
-
-func (p *EsptouchParameter) GetIntervalGuideCodeMillisecond() int64 {
-	return p.mIntervalGuideCodeMillisecond
-}
-
-func (p *EsptouchParameter) GetIntervalDataCodeMillisecond() int64 {
-	return p.mIntervalDataCodeMillisecond
-}
-
-func (p *EsptouchParameter) GetTimeoutGuideCodeMillisecond() int64 {
-	return p.mTimeoutGuideCodeMillisecond
-}
-
-func (p *EsptouchParameter) GetTimeoutDataCodeMillisecond() int64 {
-	return p.mTimeoutDataCodeMillisecond
-}
-func (p *EsptouchParameter) GetTimeoutTotalCodeMillisecond() int64 {
-	return p.mTimeoutGuideCodeMillisecond + p.mTimeoutDataCodeMillisecond
-}
-
-func (p *EsptouchParameter) GetTotalRepeatItem() int {
-	return p.mTotalRepeatItem
-}
-
-func (p *EsptouchParameter) GetEsptouchResultOneLen() int {
-	return p.mEsptouchResultOneLen
-}
-
-func (p *EsptouchParameter) GetEsptouchResultMacLen() int {
-	return p.mEsptouchResultMacLen
-}
-
-func (p *EsptouchParameter) GetEsptouchResultIpLen() int {
-	return p.mEsptouchResultIpLen
-}
-
-func (p *EsptouchParameter) GetEsptouchResultTotalLen() int {
-	return p.mEsptouchResultTotalLen
-}
-
-func (p *EsptouchParameter) GetPortListening() int {
-	return p.mPortListening
-}
-
-func (p *EsptouchParameter) GetTargetPort() int {
-	return p.mTargetPort
-}
-
-func (p *EsptouchParameter) GetWaitUdpReceivingMillisecond() int64 {
-	return p.mWaitUdpReceivingMillisecond
-}
-
-func (p *EsptouchParameter) GetWaitUdpSendingMillisecond() int64 {
-	return p.mWaitUdpSendingMillisecond
-}
-
-func (p *EsptouchParameter) GetWaitUdpTotalMillisecond() int64 {
-	return p.mWaitUdpReceivingMillisecond + p.mWaitUdpSendingMillisecond
-}
-
-func (p *EsptouchParameter) GetThresholdSucBroadcastCount() int {
-	return p.mThresholdSucBroadcastCount
-}
-func (p *EsptouchParameter) GetExpectTaskResultCount() int {
-	return p.mExpectTaskResultCount
-}
-
-func (p *EsptouchParameter) SetExpectTaskResultCount(mExpectTaskResultCount int) {
-	p.mExpectTaskResultCount = mExpectTaskResultCount
 }
 
 func (p *EsptouchParameter) nextDatagramCount() int {
@@ -119,9 +49,12 @@ func (p *EsptouchParameter) nextDatagramCount() int {
 	return 1 + (p.datagramCount-1)%100
 }
 func (p *EsptouchParameter) GetTargetHostname() string {
-	if p.mBroadcast {
+	if p.Broadcast {
+		//广播
 		return "255.255.255.255"
 	} else {
+		//组播
+		//这是乐鑫后面加上去的
 		count := p.nextDatagramCount()
 		return fmt.Sprintf("234.%d.%d.%d", count, count, count)
 	}

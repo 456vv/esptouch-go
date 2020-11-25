@@ -28,7 +28,7 @@ func main() {
 	}
 	defer task.Close()
     // false for multicast, true for broadcast
-	task.SetPackageBroadcast(false)
+	task.SetBroadcast(false)
 	log.Println("SmartConfig run.")
     // smartconfig device num: 1
 	rList := task.ExecuteForResults(1)

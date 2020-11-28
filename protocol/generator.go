@@ -15,8 +15,9 @@ func NewEsptouchGenerator(apSsid, apBssid, apPassword []byte, ipAddress net.IP) 
 	var ipBytes = []byte{255, 255, 255, 255}
 	//使用指定IP替换默认广播IP
 	if len(ipAddress) != 0 {
-		copy(ipBytes, ipBytes)
+		ipBytes = ipAddress
 	}
+	
 	//组装guideCode
 	//生成4个字节，值分别515-512
 	//并填充他的长度全部是1

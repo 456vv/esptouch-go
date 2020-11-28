@@ -27,6 +27,7 @@ type EsptouchTask struct {
 	mIsInterrupt          	bool
 	mIsExecuted           	bool
 	mIsSuc                	bool
+	mLocalIP				net.IP
 	wg						sync.WaitGroup
 }
 
@@ -184,15 +185,25 @@ func (p *EsptouchTask) Interrupt() {
 	p.interrupt()
 }
 
+//eth0 eth1
+//eth表示本机以太网卡
+//wlan0
+//wlan表示无线网卡
+//lo表示localhost
+//dummy是一个虚拟网络设shu备，来帮助本地网络配置IP的。0就表示1号虚拟网络设备
+//dummy的概念比较生僻。涉及到一些现在不太常用的概念PPP，SLIP Address等
 func (p *EsptouchTask) localIP() net.IP {
+	if p.mLocalIP != nil {
+		return  p.mLocalIP.To4()
+	}
 	netInterfaces, _ := net.Interfaces()
 	for _, v := range netInterfaces {
 		if (v.Flags & net.FlagUp) != 0 {
 			addrs, _ := v.Addrs()
 			for _, address := range addrs {
-				if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+				if ipnet, ok := address.(*net.IPNet); ok && ipnet.IP.IsGlobalUnicast() {
 					if ipnet.IP.To4() != nil {
-						return ipnet.IP
+						return ipnet.IP.To4()
 					}
 				}
 			}
@@ -241,4 +252,8 @@ func (p *EsptouchTask) ExecuteForResults(expectTaskResultCount int) []*EsptouchR
 
 func (p *EsptouchTask) SetBroadcast(broadcast bool) {
 	p.parameter.Broadcast=broadcast
+}
+
+func (p *EsptouchTask) SetLocalIP(ip net.IP){
+	p.mLocalIP = ip
 }

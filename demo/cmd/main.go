@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 	"context"
+	"net"
 )
 
 var (
@@ -18,6 +19,7 @@ var (
 	mode       	bool
 	num        	int
 	tout		int
+	sip			string
 )
 
 func init() {
@@ -27,6 +29,7 @@ func init() {
 	flag.IntVar(&num, "num", 1, "Num of device to config")
 	flag.BoolVar(&mode, "broadcast", false, "use broadcast mode?")
 	flag.IntVar(&tout, "tout", 1*60, "timeout unit second")
+	flag.StringVar(&sip, "localIP", "255.255.255.255", "local ip address Format(192.168.1.1)")
 	flag.Parse()
 }
 
@@ -36,7 +39,7 @@ func main() {
 		return
 	}
 	
-	apBssid = strings.ReplaceAll(apBssid,":", "")
+	apBssid = strings.ReplaceAll(apBssid, ":", "")
 	bssidBytes, err := hex.DecodeString(apBssid)
 	if err != nil {
 		panic(err)
@@ -47,6 +50,11 @@ func main() {
 	}
 	defer task.Close()
 	task.SetBroadcast(mode)
+	if sip != "" {
+		ip := net.ParseIP(sip)
+		task.SetLocalIP(ip)
+	}
+	
 	log.Println("SmartConfig run.")
 	
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second * time.Duration(tout))

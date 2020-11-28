@@ -3,8 +3,6 @@ package protocol
 import (
 	"github.com/456vv/esptouch-go/utils/byteutil"
 	"net"
-	"strconv"
-	"strings"
 )
 
 type EsptouchGenerator struct {
@@ -17,10 +15,7 @@ func NewEsptouchGenerator(apSsid, apBssid, apPassword []byte, ipAddress net.IP) 
 	var ipBytes = []byte{255, 255, 255, 255}
 	//使用指定IP替换默认广播IP
 	if len(ipAddress) != 0 {
-		for k, v := range strings.Split(ipAddress.String(), ".") {
-			i, _ := strconv.Atoi(v)
-			ipBytes[k] = byte(i)
-		}
+		copy(ipBytes, ipBytes)
 	}
 	//组装guideCode
 	//生成4个字节，值分别515-512

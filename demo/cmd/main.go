@@ -29,7 +29,7 @@ func init() {
 	flag.IntVar(&num, "num", 1, "Num of device to config")
 	flag.BoolVar(&mode, "broadcast", false, "use broadcast mode?")
 	flag.IntVar(&tout, "tout", 1*60, "timeout unit second")
-	flag.StringVar(&sip, "localIP", "255.255.255.255", "local ip address Format(192.168.1.1)")
+	flag.StringVar(&sip, "localIP", "", "local ip address Format(255.168.1.25)")
 	flag.Parse()
 }
 

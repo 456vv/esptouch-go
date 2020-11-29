@@ -14,8 +14,8 @@ func NewEsptouchGenerator(apSsid, apBssid, apPassword []byte, ipAddress net.IP) 
 	//默认广播IP
 	var ipBytes = []byte{255, 255, 255, 255}
 	//使用指定IP替换默认广播IP
-	if len(ipAddress) != 0 {
-		ipBytes = ipAddress
+	if len(ipAddress) != 0 && ipAddress.To4() != nil {
+		ipBytes = ipAddress.To4()
 	}
 	
 	//组装guideCode

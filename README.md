@@ -29,6 +29,11 @@ func main() {
 	defer task.Close()
     // false for multicast, true for broadcast
 	task.SetBroadcast(false)
+	// set local network ip, default use  is 255.255.255.255
+	localIP := "192.168.1.2"
+	if localIP != "" {
+		task.SetLocalIP(net.ParseIP(localIP))
+	}
 	log.Println("SmartConfig run.")
     // smartconfig device num: 1
 	rList := task.ExecuteForResults(1)

@@ -23,19 +23,13 @@ import (
 )
 
 func main() {
-	task, err := esptouch.NewEsptouchTask([]byte("My-AP"), []byte("400300200"), []byte{0x4c, 0x50, 0x77, 0x73, 0x37, 0xb0})
+	task, err := esptouch.NewEsptouchTask([]byte("My-AP"), []byte("400300200"), []byte{0x4c, 0x50, 0x77, 0x73, 0x37, 0xb0}, net.ParseIP("192.168.1.2"))
 	if err != nil {
 		panic(err)
 	}
 	defer task.Close()
     // false for multicast, true for broadcast
 	task.SetBroadcast(false)
-	// set local network ip, can use  is 255.255.255.255
-	localIP := "192.168.1.2"
-	if localIP == "" {
-		localIP = "255.255.255.255"
-	}
-	task.SetLocalIP(net.ParseIP(localIP))
 	
 	log.Println("SmartConfig run.")
     // smartconfig device num: 1

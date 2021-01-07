@@ -31,7 +31,7 @@ type EsptouchTask struct {
 	wg						sync.WaitGroup
 }
 
-func NewEsptouchTask(apSsid, apPassword, apBssid []byte) (*EsptouchTask, error) {
+func NewEsptouchTask(apSsid, apPassword, apBssid []byte, lip net.IP) (*EsptouchTask, error) {
 	if apSsid == nil || len(apSsid) == 0 {
 		return nil, errors.New("SSID can't be empty")
 	}
@@ -41,12 +41,15 @@ func NewEsptouchTask(apSsid, apPassword, apBssid []byte) (*EsptouchTask, error) 
 	if apPassword == nil {
 		apPassword = []byte("")
 	}
+	
+	if len(lip) == 0 {
+		lip = localIP()
+	}
 	mParameter := task.NewEsptouchParameter()
 	conn, err := net.ListenUDP("udp", &net.UDPAddr{
-		IP:   nil,
+		IP: lip,
 		Port: mParameter.PortListening,
 	})
-	
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +59,7 @@ func NewEsptouchTask(apSsid, apPassword, apBssid []byte) (*EsptouchTask, error) 
 		apPassword:            apPassword,
 		apBssid:               apBssid,
 		udpClient:             conn,
+		mLocalIP:			   lip,
 		mEsptouchResultList:   make([]*EsptouchResult, 0),
 		mBssidTaskSucCountMap: make(map[string]int),
 	}, nil
@@ -113,7 +117,6 @@ func (p *EsptouchTask) listenAsync(expectDataLen int) {
 			//2，超时
 			break
 		}
-		
 		if n > 0 && receiveBytes[0] == expectOneByte {
 			var bssid = byteutil.ParseBssid(receiveBytes, p.parameter.EsptouchResultOneLen, p.parameter.EsptouchResultMacLen)
 			var inetAddress = byteutil.ParseInetAddr(receiveBytes, p.parameter.EsptouchResultOneLen+p.parameter.EsptouchResultMacLen, p.parameter.EsptouchResultIpLen)
@@ -196,20 +199,7 @@ func (p *EsptouchTask) localIP() net.IP {
 	if p.mLocalIP.To4() != nil {
 		return  p.mLocalIP.To4()
 	}
-	netInterfaces, _ := net.Interfaces()
-	for _, v := range netInterfaces {
-		if (v.Flags & net.FlagUp) != 0 && (v.Flags & net.FlagBroadcast) != 0 {
-			addrs, _ := v.Addrs()
-			for _, address := range addrs {
-				if ipnet, ok := address.(*net.IPNet); ok && ipnet.IP.IsGlobalUnicast() {
-					if len(ipnet.IP.To4()) != 0 {
-						return ipnet.IP.To4()
-					}
-				}
-			}
-		}
-	}
-	return nil
+	return localIP()
 }
 
 func (p *EsptouchTask) ExecuteForResultsCtx(ctx context.Context, expectTaskResultCount int) []*EsptouchResult {
@@ -254,6 +244,19 @@ func (p *EsptouchTask) SetBroadcast(broadcast bool) {
 	p.parameter.Broadcast=broadcast
 }
 
-func (p *EsptouchTask) SetLocalIP(ip net.IP){
-	p.mLocalIP = ip
+func localIP() net.IP {
+	netInterfaces, _ := net.Interfaces()
+	for _, v := range netInterfaces {
+		if (v.Flags & net.FlagUp) != 0 && (v.Flags & net.FlagBroadcast) != 0 {
+			addrs, _ := v.Addrs()
+			for _, address := range addrs {
+				if ipnet, ok := address.(*net.IPNet); ok && ipnet.IP.IsGlobalUnicast() {
+					if len(ipnet.IP.To4()) != 0 {
+						return ipnet.IP.To4()
+					}
+				}
+			}
+		}
+	}
+	return nil
 }

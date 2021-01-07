@@ -44,16 +44,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	task, err := esptouch.NewEsptouchTask([]byte(apSsid), []byte(apPassword), bssidBytes)
+	task, err := esptouch.NewEsptouchTask([]byte(apSsid), []byte(apPassword), bssidBytes, net.ParseIP(sip))
 	if err != nil {
 		panic(err)
 	}
 	defer task.Close()
 	task.SetBroadcast(mode)
-	if sip != "" {
-		ip := net.ParseIP(sip)
-		task.SetLocalIP(ip)
-	}
 	
 	log.Println("SmartConfig run.")
 	
